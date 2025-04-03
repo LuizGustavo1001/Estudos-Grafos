@@ -39,7 +39,7 @@ int main(){
         if(numVertices <= 0 ){
             cout << "\nErro: Numero de vertices precisa ser maior ou igual a 1\n";
         }else{
-            // criando a matriz que armazena as relacoes entre os vertices
+            // criando a matriz que armazena as relações entre os vértices
             int** relacoes = new int*[numVertices];
             for(int i=0; i<numVertices ; i++){
                 relacoes[i] = new int[numVertices];
@@ -64,7 +64,7 @@ int main(){
                         cout << "Grafo possui " << numVertices << " vertices e" << numArestas << " arestas\n";
                         break;
                     }
-                    case 2:{ //BFS entre 2 vertices
+                    case 2:{ //BFS entre 2 vértices
                         int verticeInicial;
                         cout << "-Distancia entre o vertice: ";
                         cin >> verticeInicial;
@@ -88,12 +88,12 @@ int main(){
                         }
                         break;
                     }
-                    case 3:{ // imprimir a matriz de relacoes
+                    case 3:{ // imprimir a matriz de relações
                         cout << "\n<Matriz de Relacoes>\n";
                         imprimeRelacoes(relacoes, numVertices);
                         break;
                     }
-                    case 4:{ // vizinhos/filhos de um vertice
+                    case 4:{ // vizinhos/filhos de um vértice
                         cout << "\nVertice Desejado: ";
                         int verticeDesejado;
                         cin >> verticeDesejado;
@@ -138,15 +138,16 @@ void menu(){
     cout << "4) Identificar filhos/vizinhos de um vertice\n";
     cout << "5) Finalizar programa\n";
     cout << "\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
-
     cout << "Resposta ( 1 ate 4 ): ";
-
 }
 
 void preencheRelacoes(int** m, int nV, int& nA){
     for(int i=0; i<nV ; i++){
         for(int j=0; j<nV ; j++){
             if((i != j) and (m[j][i] != 1)){
+                // não é possível ter loopings em vetores não direcionados
+                // se "i" já se relaciona com "f", então não há como "f" se relacionar com "i"
+
                 cout << "\nVertice " << i+1 << " possui relacao com vertice " << j+1 << " ?\n";
                 cout << "Resposta( 1 ou 0 ): ";
                 bool respostaRelacoes;
@@ -156,9 +157,9 @@ void preencheRelacoes(int** m, int nV, int& nA){
                     cin.ignore(1000, '\n');
                     cout << "\nErro: tipo de variavel invalido - Considerando que nao ha relacao\n";
                 }else{
-                    if(respostaRelacoes == true){// possui relacao
+                    if(respostaRelacoes == true){// possui relação
                         m[i][j] = 1;
-                        nA++; // cada relacao representa uma aresta do grafo
+                        nA++; // cada relação representa uma aresta do grafo
                     }
                 }
             }
@@ -169,10 +170,13 @@ void preencheRelacoes(int** m, int nV, int& nA){
 
 void imprimeRelacoes(int** m , int v){
     cout << "\n :) ";
+
     for(int a=0; a<v ; a++){
         cout << "(" << a+1 << ") ";
     }
+
     cout << endl;
+
     for(int i=0; i<v ; i++){
         cout << "(" << i+1 << ")  "; 
         for(int j=0; j<v ; j++){
@@ -180,6 +184,7 @@ void imprimeRelacoes(int** m , int v){
         }
         cout << endl;
     }
+
     cout << endl;
 }
 
@@ -204,21 +209,28 @@ void filhosVertice(int** m, int v, int f[], int vD){
 
 
 void BFS(int i, int f, int** m, int nV){
+    /*
+        1o - procurar todos os caminhos possíveis de "i" para "f"
+        2o - andar cada um dos caminhos e armazenar a distância de "i" para "f" no vetor "f" (novoI)
+        3o - comparar as distâncias obtidas no vetor e externar a menor delas (menor caminho)
+    */
+
     if(m[i][f] == 1){ 
         // f eh filho de i
         cout << "Como " << f+1 << " eh filho de " << i+1 << ", Distancia = 1" << endl;
-    }else{ // f nao possui ligacao direta com i
-        int* distancias = new int[nV];
+    }else{ // "f" não possui ligação direta com "i" -> procurar filhos de "i" que se ligam a "f"
+        int* distancias = new int[nV]; // vetor armazenar distâncias
         int dis = 0;
+
         for(int j=0; j<nV ; j++){
             distancias[j] = 0;
         }
 
         for(int j=0; j<nV ; j++){
-            if(m[i][j] == 1){ // j eh filho de i
+            if(m[i][j] == 1){ // "j" eh filho de "i" -> achado um novo caminho = andar por ele
                 int novoI = j;
                 int k = 0;
-                while((k < nV) and (novoI != f)){
+                while((k < nV) and (novoI != f)){ // andar o caminho de "novoI" ate ele ser igual ao "f"
                     if(m[novoI][k] == 1){
                         distancias[dis] += 1;
                         novoI = k;
@@ -227,12 +239,12 @@ void BFS(int i, int f, int** m, int nV){
                         k++;
                     }
                 }
-                dis++;
+                dis++; // proximo caminho
             }
         }
-        if(distancias[0] == 0){ // nao foi detectado nenhum caminho possível de I para F
+        if(distancias[0] == 0){
             cout << "\nNenhum caminho possivel detectado de " << i+1 << " para " << f+1 << endl;
-        }else{
+        }else{ // filtrar a menor distância do vetor
             int menorDistancia = distancias[0];
             for(int l=0; l<nV ; l++){
                 if((distancias[l] <  menorDistancia) and (distancias[l] != 0)){
